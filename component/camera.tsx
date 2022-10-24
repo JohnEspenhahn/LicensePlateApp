@@ -1,36 +1,43 @@
-import React from 'react';
 import { Camera, CameraType } from 'expo-camera';
-import { useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, useWindowDimensions  } from 'react-native';
+import * as Location from 'expo-location';
+import React, { useState } from 'react';
+import { ActivityIndicator, Button, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import SageMakerRuntime from '../adapter/sagemaker_adapater';
 import styles from '../styles';
+
 
 const sageMaker = new SageMakerRuntime();
 
 interface CameraComponentProps {
-  onDetected?: (base64Img: String, plate: string) => void;
+  onDetected?: (base64Img: String, plate: string, coords: Location.LocationObjectCoords) => void;
 }
 
 export default function CameraComponent(props: CameraComponentProps) {
   const [ready, setReady] = useState(false);
-  const [permission, requestPermission] = Camera.useCameraPermissions();
+  const [cameraPermission, requestCameraPermission] = Camera.useCameraPermissions();
   const [running, setRunning] = useState(false);
+  const [locationStatus, requestLocationPermission] = Location.useForegroundPermissions();
 
   let { width, height } = useWindowDimensions();
-  width = Math.min(Math.floor(height*(2/3)), width);
-  height = width;
+  width = Math.min(Math.floor(height*(3/4)), width);
+  height = Math.floor(width * (3/4));
 
-  if (!permission) {
-    // Camera permissions are still loading
+  async function requestAllPermissions() {
+    await requestCameraPermission();
+    await requestLocationPermission();
+  }
+
+  if (!cameraPermission) {
+    // still loading
     return <View />;
   }
 
-  if (!permission.granted) {
+  if (!cameraPermission.granted || !locationStatus?.granted) {
     // Camera permissions are not granted yet
     return (
       <View style={styles.container}>
-        <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        <Text style={{ textAlign: 'center' }}>We need your permission to camera and location</Text>
+        <Button onPress={requestAllPermissions} title="grant permission" />
       </View>
     );
   }
@@ -44,18 +51,21 @@ export default function CameraComponent(props: CameraComponentProps) {
     setRunning(true);
 
     try {
+      const currentPositionPromise = Location.getCurrentPositionAsync();
       const photo = await camera.takePictureAsync();
 
       const base64 = photo.base64;
       const index = photo.base64.indexOf(',');
       const data = photo.base64.substring(index + 1);
 
-      const resp = "OK"; // await sageMaker.invoke(data);
+      const resp = await sageMaker.invoke(data);
 
       console.log(resp);
 
+      const location = await currentPositionPromise;
+
       if (props.onDetected) {
-        props.onDetected(base64, resp);
+        props.onDetected(base64, resp, location.coords);
       }
     } finally {
       setRunning(false);
@@ -63,16 +73,23 @@ export default function CameraComponent(props: CameraComponentProps) {
   }
 
   const buttonArea = () => {
+    const buttonAreaStyle: any = {
+      flex: 1, 
+      flexDirection: 'column-reverse', 
+      paddingBottom: 64, 
+      alignItems: 'center',
+    };
+
     if (running) {
       return (
-        <View style={styles.button}>
+        <View style={buttonAreaStyle}>
           <ActivityIndicator size="large" />
         </View>
       );
     } else {
       return (
-        <TouchableOpacity style={styles.button} onPress={captureImage}>
-          <Text style={styles.text}>Capture</Text>
+        <TouchableOpacity style={{ ...buttonAreaStyle, width: '100%', height: '100%' }} onPress={captureImage}>
+          <Text style={{ ...styles.text, color: 'white' }}>Capture</Text>
         </TouchableOpacity>
       );
     }
@@ -80,8 +97,11 @@ export default function CameraComponent(props: CameraComponentProps) {
 
   return (
     <View style={{ width: '100%', height, minHeight: height, alignItems: 'center', justifyContent: 'space-around' }}>
-      <Camera ratio="1:1" style={{ width }} type={CameraType.back} onCameraReady={() => setReady(true)} ref={r => camera = r}>
-        {ready && <View style={styles.buttonContainer}>{buttonArea()}</View>}
+      <Camera ratio="4:3" style={{ width }} type={CameraType.back} onCameraReady={() => setReady(true)} ref={r => camera = r}>
+        {ready && <View style={{
+          flex: 1,
+          backgroundColor: 'transparent',
+        }}>{buttonArea()}</View>}
       </Camera>
     </View>
   );

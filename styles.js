@@ -7,19 +7,15 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
       flex: 1,
-      flexDirection: 'row',
-      backgroundColor: 'transparent',
-      margin: 64,
-    },
-    button: {
-      flex: 1,
-      alignSelf: 'flex-end',
       alignItems: 'center',
+      flexDirection: 'column',
+      justifyContent: 'flex-end',
+      backgroundColor: 'transparent',
+      
     },
     text: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: 'white',
     },
   });
 

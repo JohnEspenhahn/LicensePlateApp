@@ -8,8 +8,8 @@ export default class SageMakerRuntime {
         this.client = new AWS.SageMakerRuntime({
             region,
             credentials: {
-                accessKeyId: "",
-                secretAccessKey: ""
+                accessKeyId: "AKIA5X25EDMYDLRG7CI4",
+                secretAccessKey: "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"
             }
         });
         this.decoder = new TextDecoder();
@@ -17,7 +17,7 @@ export default class SageMakerRuntime {
 
     async invoke(data) {
         const resp = await this.client.invokeEndpoint({
-            EndpointName: 'PlateOcr-4',
+            EndpointName: 'PlateOcr-9',
             Body: data,
         }).promise();
 
