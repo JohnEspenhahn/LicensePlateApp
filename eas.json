@@ -5,22 +5,12 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
-      "env": {
-        "NODE_OPTIONS": "--max_old_space_size=8192"
-      }
+      "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal",
-      "env": {
-        "NODE_OPTIONS": "--max_old_space_size=8192"
-      }
+      "distribution": "internal"
     },
-    "production": {
-      "env": {
-        "NODE_OPTIONS": "--max_old_space_size=8192"
-      }
-    }
+    "production": {}
   },
   "submit": {
     "production": {}
