@@ -13,6 +13,7 @@ interface HistoryItem {
 
 interface HistoryComponentProps {
   history: HistoryItem[];
+  acceptItem: (item: HistoryItem, idx: number) => void;
 }
 
 export default function HistoryComponent(props: HistoryComponentProps) {
@@ -43,7 +44,7 @@ export default function HistoryComponent(props: HistoryComponentProps) {
           </View>
           <MapComponent size={height} coords={item.coords} />
           <View style={contentStyle}>
-            <Button title="Accept &raquo;" />
+            <Button title="Accept &raquo;" onPress={() => props.acceptItem(item, idx)} />
           </View>
         </View>
       </View>

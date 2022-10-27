@@ -4,24 +4,22 @@ import 'fast-text-encoding';
 export default class SageMakerRuntime {
 
     constructor() {
-        const region = "us-east-1";
-        this.client = new AWS.SageMakerRuntime({
-            region,
-            credentials: {
-                accessKeyId: "AKIA5X25EDMYDLRG7CI4",
-                secretAccessKey: "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"
-            }
-        });
-        this.decoder = new TextDecoder();
+        this.endpoint = "https://mosak1d405.execute-api.us-east-1.amazonaws.com/alpha/model";
     }
 
-    async invoke(data) {
-        const resp = await this.client.invokeEndpoint({
-            EndpointName: 'PlateOcr-9',
-            Body: data,
-        }).promise();
+    async invokeApi(data) {
+        try {
+            const resp = await fetch(this.endpoint, {
+                method: "POST",
+                body: data,
+                headers: { 'Content-Type': 'text/plain' },
+            });
 
-        return this.decoder.decode(resp.Body);
+            return await resp.text();
+        } catch (e) {
+            console.log(e);
+            return "error";
+        }
     }
 
 }

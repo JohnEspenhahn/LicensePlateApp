@@ -2,8 +2,8 @@ import * as Location from 'expo-location';
 import React from 'react';
 import { Image } from "react-native";
 
-const KEY = "AIzaSyD1QJBmygSIwZNApDiAHDGvnLrouEcLEyc";
-const getEndpoint = (lat, lng, size) => `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&markers=color:blue%7C${lat},${lng}&size=${size}x${size}&key=${KEY}`;
+
+const getEndpoint = (latitude, longitude, size) => `https://mosak1d405.execute-api.us-east-1.amazonaws.com/alpha/map/${latitude}/${longitude}/${size}`;
 
 interface MapComponentProps {
     size: number;

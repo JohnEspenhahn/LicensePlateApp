@@ -58,7 +58,7 @@ export default function CameraComponent(props: CameraComponentProps) {
       const index = photo.base64.indexOf(',');
       const data = photo.base64.substring(index + 1);
 
-      const resp = await sageMaker.invoke(data);
+      const resp = await sageMaker.invokeApi(data);
 
       console.log(resp);
 

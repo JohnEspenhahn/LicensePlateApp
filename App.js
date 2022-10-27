@@ -23,7 +23,13 @@ export default function App() {
         },
         ...prev,
       ];
-    })
+    });
+  }
+
+  function acceptItem(item, idx) {
+    setHistory((prev) => {
+      return prev.filter(value => value !== item);
+    });
   }
 
   return (
@@ -32,7 +38,7 @@ export default function App() {
         <View style={{ height }}>
           <HamburgerComponent />
           <CameraComponent onDetected={onDetected} />
-          <HistoryComponent history={history} />
+          <HistoryComponent history={history} acceptItem={acceptItem} />
         </View>
       </ThemeProvider>
     </SafeAreaProvider>
