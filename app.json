@@ -1,5 +1,6 @@
 {
   "expo": {
+    "jsEngine": "hermes",
     "name": "ExpoGoCamera",
     "slug": "ExpoGoCamera",
     "version": "1.0.0",
@@ -34,6 +35,7 @@
       "eas": {
         "projectId": "7bc5948c-f401-4f33-8072-e2ca6e653dd0"
       }
-    }
+    },
+    "plugins": ["expo-camera"]
   }
 }

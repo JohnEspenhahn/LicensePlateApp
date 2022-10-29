@@ -1,7 +1,6 @@
-import AWS from 'aws-sdk/dist/aws-sdk-react-native';
-import 'fast-text-encoding';
-
 export default class SageMakerRuntime {
+
+    readonly endpoint: string;
 
     constructor() {
         this.endpoint = "https://mosak1d405.execute-api.us-east-1.amazonaws.com/alpha/model";
@@ -15,9 +14,12 @@ export default class SageMakerRuntime {
                 headers: { 'Content-Type': 'text/plain' },
             });
 
-            return await resp.text();
+            if (resp.ok) {
+                return await resp.text();
+            } else {
+                return "error";
+            }
         } catch (e) {
-            console.log(e);
             return "error";
         }
     }

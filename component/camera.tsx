@@ -1,15 +1,25 @@
-import { Camera, CameraType } from 'expo-camera';
+import { Camera, CameraCapturedPicture, CameraType } from 'expo-camera';
 import * as Location from 'expo-location';
 import React, { useState } from 'react';
 import { ActivityIndicator, Button, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import SageMakerRuntime from '../adapter/sagemaker_adapater';
 import styles from '../styles';
+import * as FileSystem from 'expo-file-system';
+import * as ImageManipulator from 'expo-image-manipulator';
 
-
+const base64ImgPrefix = 'data:image/jpg;base64,';
 const sageMaker = new SageMakerRuntime();
 
 interface CameraComponentProps {
-  onDetected?: (base64Img: String, plate: string, coords: Location.LocationObjectCoords) => void;
+  onDetect: (base64Img: string, coords: Location.LocationObjectCoords) => string;
+  onDetected: (id: string, plate: string) => void;
+}
+
+export function getCameraDimensions() {
+  let { width, height } = useWindowDimensions();
+  width = Math.round(Math.min(Math.floor(height/2), width));
+  height = width; // Math.floor(width * (3/4));
+  return { width, height };
 }
 
 export default function CameraComponent(props: CameraComponentProps) {
@@ -18,9 +28,7 @@ export default function CameraComponent(props: CameraComponentProps) {
   const [running, setRunning] = useState(false);
   const [locationStatus, requestLocationPermission] = Location.useForegroundPermissions();
 
-  let { width, height } = useWindowDimensions();
-  width = Math.min(Math.floor(height*(3/4)), width);
-  height = Math.floor(width * (3/4));
+  const { width, height } = getCameraDimensions();
 
   async function requestAllPermissions() {
     await requestCameraPermission();
@@ -42,33 +50,59 @@ export default function CameraComponent(props: CameraComponentProps) {
     );
   }
 
-  let camera;
+  let camera: Camera;
   async function captureImage() {
     if (!camera) {
       return;
     }
 
-    setRunning(true);
+    const currentPositionPromise = Location.getCurrentPositionAsync();
 
+    setRunning(true);    
+
+    let data: string;
+    let photo: CameraCapturedPicture;
     try {
-      const currentPositionPromise = Location.getCurrentPositionAsync();
-      const photo = await camera.takePictureAsync();
-
-      const base64 = photo.base64;
-      const index = photo.base64.indexOf(',');
-      const data = photo.base64.substring(index + 1);
-
-      const resp = await sageMaker.invokeApi(data);
-
-      console.log(resp);
-
-      const location = await currentPositionPromise;
-
-      if (props.onDetected) {
-        props.onDetected(base64, resp, location.coords);
+      photo = await camera.takePictureAsync();
+      if (photo.base64) {
+        const index = photo.base64.indexOf(',');
+        data = photo.base64.substring(index + 1);
+      } else if (photo.uri) {
+        data = await FileSystem.readAsStringAsync(photo.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
       }
+    } catch (e) {
+      throw e;
     } finally {
       setRunning(false);
+    }
+
+    // Actually crop to 1:1
+    const size = Math.min(photo.width, photo.height);
+    const x = (photo.width - size) / 2;
+    const y = (photo.height - size) / 2;
+
+    const resizeResult = await ImageManipulator.manipulateAsync(
+      base64ImgPrefix + data,
+      [ 
+        { crop: { originX: x, originY: y, width: size, height: size } },
+        { resize: { height: 600 } } 
+      ],
+      { base64: true }
+    );
+
+    const location = await currentPositionPromise;
+    const id = props.onDetect(base64ImgPrefix + resizeResult.base64, location.coords);
+
+    let resp = "error";
+    try {
+      resp = await sageMaker.invokeApi(resizeResult.base64);
+      if (!resp) {
+        resp = "not found";
+      }
+    } finally {
+      props.onDetected(id, resp);
     }
   }
 
@@ -97,7 +131,7 @@ export default function CameraComponent(props: CameraComponentProps) {
 
   return (
     <View style={{ width: '100%', height, minHeight: height, alignItems: 'center', justifyContent: 'space-around' }}>
-      <Camera ratio="4:3" style={{ width }} type={CameraType.back} onCameraReady={() => setReady(true)} ref={r => camera = r}>
+      <Camera ratio="1:1" style={{ width, height }} type={CameraType.back} onCameraReady={() => setReady(true)} ref={r => camera = r}>
         {ready && <View style={{
           flex: 1,
           backgroundColor: 'transparent',

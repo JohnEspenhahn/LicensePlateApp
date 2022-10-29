@@ -1,44 +1,75 @@
 import { ThemeProvider } from '@rneui/themed';
 import { useState } from 'react';
-import { Image, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import uuid from 'react-native-uuid';
 import CameraComponent from './component/camera';
 import HamburgerComponent from './component/hamburger';
 import HistoryComponent from './component/history';
-import styles from './styles';
 
 export default function App() {
   const [history, setHistory] = useState([]);
+  const [captures, setCaptures] = useState({});
   const { height } = useWindowDimensions();
 
-  function onDetected(base64Img, plate, coords) {
-    console.log("On detect: " + plate);
+  function onDetect(base64Img, coords) {
+    const id = uuid.v4();
 
-    setHistory((prev) => {
-      return [
-        {
+    setCaptures(prev => {
+      return {
+        ...prev,
+        [id]: {
           base64Img,
-          plate,
           coords,
+          plate: undefined,
         },
+      };
+    });
+
+    setHistory(prev => {
+      return [
+        id,
         ...prev,
       ];
     });
+
+    return id;
   }
 
-  function acceptItem(item, idx) {
+  function onDetected(id, plate) {
+    console.log("onDetected: " + id + " " + plate);
+
+    setCaptures(prev => {
+      const capture = prev[id];
+      if (capture) {
+        prev = {
+          ...prev,
+          [id]: {
+            ...capture,
+            plate,
+          },
+        };
+      }
+
+      return prev;
+    })
+  }
+
+  function onAccept(item) {
     setHistory((prev) => {
       return prev.filter(value => value !== item);
     });
   }
+
+  console.log("Starting...");
 
   return (
     <SafeAreaProvider>
       <ThemeProvider>
         <View style={{ height }}>
           <HamburgerComponent />
-          <CameraComponent onDetected={onDetected} />
-          <HistoryComponent history={history} acceptItem={acceptItem} />
+          <CameraComponent onDetect={onDetect} onDetected={onDetected} />
+          <HistoryComponent history={history} captures={captures} onAccept={onAccept} />
         </View>
       </ThemeProvider>
     </SafeAreaProvider>

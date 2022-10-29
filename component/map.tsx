@@ -13,10 +13,12 @@ interface MapComponentProps {
 export default function MapComponent(props: MapComponentProps) {
     const endpoint = getEndpoint(props.coords.latitude, props.coords.longitude, props.size);
 
+    console.log("Map component size: " + props.size);
+
     return (
         <Image
-            style={{ flex: 1, width: undefined, height: props.size, resizeMode: "contain" }}
+            style={{ flex: 1, width: props.size, height: props.size, resizeMode: "contain" }}
             source={{ uri: endpoint }}
           />
-    )
+    );
 }
