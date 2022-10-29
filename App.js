@@ -55,9 +55,9 @@ export default function App() {
     })
   }
 
-  function onAccept(item) {
+  function onAccept(id) {
     setHistory((prev) => {
-      return prev.filter(value => value !== item);
+      return prev.filter(value => value !== id);
     });
   }
 

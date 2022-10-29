@@ -23,7 +23,7 @@ export interface HistoryItem {
 interface HistoryItemProps {
   id: string;
   item: HistoryItem;
-  onAccept: (item: HistoryItem) => void;
+  onAccept: (id: string) => void;
 }
 
 function getItemDimensions() {
@@ -97,7 +97,7 @@ export default function HistoryItemComponent(props: HistoryItemProps) {
         <View style={{ ...contentStyle, marginHorizontal: padding }}>
           <Button
             title="Accept&nbsp;&raquo;"
-            onPress={() => props.onAccept(item)}
+            onPress={() => props.onAccept(props.id)}
           />
         </View>
       </ScrollView>
