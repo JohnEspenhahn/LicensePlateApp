@@ -1,9 +1,10 @@
 import * as Location from 'expo-location';
 import React from 'react';
 import { Image } from "react-native";
+import { ENDPOINT } from '../config/config';
 
 
-const getEndpoint = (latitude, longitude, size) => `https://mosak1d405.execute-api.us-east-1.amazonaws.com/alpha/map/${latitude}/${longitude}/${size}`;
+const getEndpoint = (latitude, longitude, size) => `${ENDPOINT}/map/${latitude}/${longitude}/${size}`;
 
 interface MapComponentProps {
     size: number;

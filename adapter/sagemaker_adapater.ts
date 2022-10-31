@@ -1,9 +1,11 @@
+import { ENDPOINT } from '../config/config';
+
 export default class SageMakerRuntime {
 
     readonly endpoint: string;
 
     constructor() {
-        this.endpoint = "https://mosak1d405.execute-api.us-east-1.amazonaws.com/alpha/model";
+        this.endpoint = `${ENDPOINT}/model`;
     }
 
     async invokeApi(data) {

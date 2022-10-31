@@ -1,4 +1,12 @@
-## postinstall
+## Service
+
+https://github.com/JohnEspenhahn/LicensePlateService
+
+Update config/config.ts to target your service deployment
+
+## npm run postinstall
+
+Used to fix the following:
 
 ### expo-camera peer dependencies
 
