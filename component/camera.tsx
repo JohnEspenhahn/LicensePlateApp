@@ -9,6 +9,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 
 const base64ImgPrefix = 'data:image/png;base64,';
 const sageMaker = new SageMakerRuntime();
+const resizeToPx = 800;
 
 interface CameraComponentProps {
   onDetect: (base64Img: string, coords: Location.LocationObjectCoords) => string;
@@ -87,7 +88,7 @@ export default function CameraComponent(props: CameraComponentProps) {
       base64ImgPrefix + data,
       [ 
         { crop: { originX: x, originY: y, width: size, height: size } },
-        { resize: { height: 600 } },
+        { resize: { height: resizeToPx } },
       ],
       { 
         base64: true,
