@@ -7,7 +7,7 @@ import styles from '../styles';
 import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 
-const base64ImgPrefix = 'data:image/jpg;base64,';
+const base64ImgPrefix = 'data:image/png;base64,';
 const sageMaker = new SageMakerRuntime();
 
 interface CameraComponentProps {
@@ -87,9 +87,12 @@ export default function CameraComponent(props: CameraComponentProps) {
       base64ImgPrefix + data,
       [ 
         { crop: { originX: x, originY: y, width: size, height: size } },
-        { resize: { height: 600 } } 
+        { resize: { height: 600 } },
       ],
-      { base64: true }
+      { 
+        base64: true,
+        format: ImageManipulator.SaveFormat.PNG,
+      }
     );
 
     const location = await currentPositionPromise;

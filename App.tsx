@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@rneui/themed';
+import { LocationObjectCoords } from 'expo-location';
 import { useState } from 'react';
 import { useWindowDimensions, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -12,8 +13,8 @@ export default function App() {
   const [captures, setCaptures] = useState({});
   const { height } = useWindowDimensions();
 
-  function onDetect(base64Img, coords) {
-    const id = uuid.v4();
+  function onDetect(base64Img: string, coords: LocationObjectCoords): string {
+    const id = uuid.v4().toString();
 
     setCaptures(prev => {
       return {
@@ -36,7 +37,7 @@ export default function App() {
     return id;
   }
 
-  function onDetected(id, plate) {
+  function onDetected(id: string, plate: string) {
     console.log("onDetected: " + id + " " + plate);
 
     setCaptures(prev => {
@@ -55,7 +56,7 @@ export default function App() {
     })
   }
 
-  function onAccept(id) {
+  function onAccept(id: string) {
     setHistory((prev) => {
       return prev.filter(value => value !== id);
     });

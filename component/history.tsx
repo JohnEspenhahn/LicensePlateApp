@@ -5,7 +5,7 @@ import HistoryItemComponent, { HistoryItem } from "./historyitem";
 interface HistoryComponentProps {
   history: string[];
   captures: { [id: string]: HistoryItem };
-  onAccept: (item: HistoryItem) => void;
+  onAccept: (id: string) => void;
 }
 
 export default function HistoryComponent(props: HistoryComponentProps) {
